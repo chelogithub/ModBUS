@@ -170,7 +170,7 @@ ModBUS_F03_Request(struct MBUS *m2, uint16_t addr , uint8_t qty)
 
 	m2->_MBUS_2SND[10]=0x00;
 	m2->_MBUS_2SND[11]=qty;
-
+	m2->_n_MBUS_2SND=12;			//Conteo de bytes a transmitir
 
 }
 
