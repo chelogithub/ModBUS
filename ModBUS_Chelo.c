@@ -11,7 +11,7 @@ void ModBUS_Config(struct MBUS *m)
 	m->_address=1;							//Canal  o direccion ModBUS
 
 	m->_mode=0;								//Defino modo de trabajo, cliente o servidor.
-	m->_timeout=5000;						//Timeout para la recepción de respuesta.
+	m->_timeout=500;						//Timeout para la recepción de respuesta.
 
 	m->_01_ReadCoils_EN=1;					//Habilito Funcion 1
 	m->_01_ReadCoils_QTY=32;				//Defino cantidad de Coils disponibles en la funcion 1
@@ -1137,4 +1137,125 @@ int ModBUS(struct MBUS *m3)
 	}
 
 
+}
+
+/**********************************************************
+   Verificar_CRC16 Devuelve 1 si CRC OK y 0 si CRC ERROR
+   Se requiere Vector y cdad de elementos a calcular CRC
+**********************************************************/
+
+uint8_t Verificar_CRC16(unsigned char *ptr, int count)
+	{
+	unsigned int crc;
+    char i;
+
+ 	   crc = 0xffff;
+ 	   while (--count >= 0)
+  	  {
+  	      crc = crc ^ (unsigned int) *ptr++;
+  	      i = 8;
+   	    	 do
+    	   		 {
+    	        	if (crc & 0x0001)
+   	           		    crc = (crc >> 1) ^ 0xA001;
+  	          			else
+                			crc = (crc >> 1);
+        		 } while(--i);
+    	}
+	if (crc==0x0000)
+		return(1);
+		else
+		return(0);
+	}
+
+/*************************************************************************
+   Agregar_CRC16aTXVect() Agrega los 2 bytes al vector
+   Se requiere Vector y cdad de elementos a calcular CRC
+   Vector resultante posee 2 posiciones mas debido a las palabras de CRC
+*************************************************************************/
+
+void  Agregar_CRC16aTXVect(unsigned char *ptr, int count)
+	{
+		unsigned int crc;
+   		char i;
+		int count2=count;
+
+ 		   crc = 0xffff;
+ 		   while (--count >= 0)
+  		  {
+	  	      crc = crc ^ (unsigned int) *ptr++;
+	  	      i = 8;
+   	    	 do
+    	   	 {
+    	        	if (crc & 0x0001)
+   	           		    crc = (crc >> 1) ^ 0xA001;
+  	          			else
+                			crc = (crc >> 1);
+        	} while(--i);
+    	};
+	*ptr++=*&crc;
+
+	while (count2>count)
+	{
+		count++;
+		*ptr--;
+	}
+	count2++;
+		   crc = 0xffff;
+ 		   while (--count2 >= 0)
+  		  {
+	  	      crc = crc ^ (unsigned int) *ptr++;
+	  	      i = 8;
+   	    	 do
+    	   	 {
+    	        	if (crc & 0x0001)
+   	           		    crc = (crc >> 1) ^ 0xA001;
+  	          			else
+                			crc = (crc >> 1);
+        	} while(--i);
+
+			};
+	*ptr++=*&crc;
+	}
+/**********************************************************************************
+   uint8_t porcessAnswerModbusRTU(struct MBUS *m3,unsigned char *vect, int items)
+   Debo verificar que lo recibido es modBus y cotejar con la configuración si es para
+   este dispositivo.
+***********************************************************************************/
+uint8_t processAnswerModbusRTU(struct MBUS *inst_m485)
+{
+	if((inst_m485->_MBUS_RCVD[PDU_QTY_BYTE]+5==inst_m485->_n_MBUS_RCVD))
+	{
+		switch(inst_m485->_MBUS_RCVD[PDU_FCODE])
+		{
+		case HOLDING_REG:		//Si el código de la función el Holding Registers
+			{
+				for(int i=PDU_DATA; i<= (PDU_DATA + inst_m485->_MBUS_RCVD[PDU_QTY_BYTE]);i++)
+				{
+					inst_m485->_Holding_Registers[i-PDU_DATA]= inst_m485->_MBUS_RCVD[i];
+				}
+			}
+		break;
+		}
+
+	}
+
+}
+
+void  createCommandRTU(struct MBUS *inst_m485, uint8_t addr , uint8_t comando, uint16_t startAddress, uint16_t qty )
+{
+	uint16_t num=0;
+
+	inst_m485->_MBUS_2SND[0]=addr;
+	inst_m485->_MBUS_2SND[1]=comando;
+	num=startAddress;
+	inst_m485->_MBUS_2SND[3]=num;
+	num=num>>8;
+	inst_m485->_MBUS_2SND[2]=num;
+	num=qty;
+	inst_m485->_MBUS_2SND[5]=num;
+	num=num>>8;
+	inst_m485->_MBUS_2SND[4]=num;
+	Agregar_CRC16aTXVect(inst_m485->_MBUS_2SND,6);
+	inst_m485->_n_MBUS_2SND=8;
 }
