@@ -25,6 +25,7 @@ struct MBUS
 	uint8_t	 _mode;									//Funciona como servidor mode = 1 o cliente mode =0
 	uint16_t _timeout;								//Timeout para esperar respuesta desde el Servidor
 	uint8_t  _w_answer;								//Mensaje enviado aguardando respuesta
+	uint8_t  _data_Ready;							//Registra recepción de información
 
 	uint8_t  _01_ReadCoils_EN;						//Habilitar codigo de función  01 0=DESACTIVADO 1=ACTIVADO
 	uint8_t  _02_ReadDiscreteInputs_EN;				//Habilitar codigo de función  02 0=DESACTIVADO 1=ACTIVADO
