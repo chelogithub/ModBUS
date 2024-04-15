@@ -70,82 +70,75 @@ int ModBUS_Check_tid(struct MBUS *m2)
 	}
 }
 
-int ModBUS_F03_Assign(struct MBUS *m2, uint8_t a, uint16_t b)
+int ModBUS_F03_Assign(struct MBUS *m2, uint8_t address, uint16_t data)
 {
+
 	uint8_t c=0;
 	//	Analizo que el rango de direcciones sea el correcto
-	if( (a) > m2->_03_ReadHoldingRegisters_QTY)
+	if( (address) > m2->_03_ReadHoldingRegisters_QTY)
 	{
 		return(1);
 	}
 	else
 	{
-		m2->_Holding_Registers[(a*2)+1]=b;
-		c=b>>8;
-		m2->_Holding_Registers[(a*2)]=c;
+		m2->_Holding_Registers[(address)+1]=data;
+		c=data>>8;
+		m2->_Holding_Registers[(address)]=c;
 
 		return(0);
 	}
 }
 
-int ModBUS_F04_Assign(struct MBUS *m2, uint8_t a, uint16_t b)
+int ModBUS_F04_Assign(struct MBUS *m2, uint8_t address, uint16_t data)
 {
 	uint8_t c=0;
 	//	Analizo que el rango de direcciones sea el correcto
-	if( (a) > m2->_04_ReadInputRegisters_QTY)
+	if( (address) > m2->_04_ReadInputRegisters_QTY)
 	{
 		return(1);
 	}
 	else
 	{
-		m2->_InputRegisters[(a*2)+1]=b;
-		c=b>>8;
-		m2->_InputRegisters[(a*2)]=c;
+		m2->_InputRegisters[(address)+1]=data;
+		c=data>>8;
+		m2->_InputRegisters[(address)]=c;
 
 		return(0);
 	}
 }
 
-uint16_t ModBUS_F03_Read(struct MBUS *m2, uint8_t a)
+uint16_t ModBUS_F03_Read(struct MBUS *m2, uint8_t address)
 {
 	uint16_t n=0;
 	uint8_t c=0;
 	//	Analizo que el rango de direcciones sea el correcto
-	if( (a) > m2->_03_ReadHoldingRegisters_QTY)
+	if( (address) > m2->_03_ReadHoldingRegisters_QTY)
 	{
 		return(1);
 	}
 	else
 	{
-		n=m2->_Holding_Registers[(a*2)];
+		n=m2->_Holding_Registers[(address*2)];
 		n=n<<8;
-		n|=m2->_Holding_Registers[(a*2)+1];
-
-		/*m2->_Holding_Registers[(a*2)+1]=b;
-		c=b>>8;
-		m2->_Holding_Registers[(a*2)]=c;*/
+		n|=m2->_Holding_Registers[(address*2)+1];
 		return(n);
 	}
 }
 
-uint16_t ModBUS_F04_Read(struct MBUS *m2, uint8_t a)
+uint16_t ModBUS_F04_Read(struct MBUS *m2, uint8_t address)
 {
 	uint16_t n=0;
 	uint8_t c=0;
 	//	Analizo que el rango de direcciones sea el correcto
-	if( (a) > m2->_03_ReadHoldingRegisters_QTY)
+	if( (address) > m2->_03_ReadHoldingRegisters_QTY)
 	{
 		return(1);
 	}
 	else
 	{
-		n=m2->_Holding_Registers[(a*2)];
+		n=m2->_Holding_Registers[(address*2)];
 		n=n<<8;
-		n|=m2->_Holding_Registers[(a*2)+1];
-
-		/*m2->_Holding_Registers[(a*2)+1]=b;
-		c=b>>8;
-		m2->_Holding_Registers[(a*2)]=c;*/
+		n|=m2->_Holding_Registers[(address*2)+1];
 		return(n);
 	}
 }
