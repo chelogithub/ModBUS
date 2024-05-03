@@ -81,6 +81,7 @@ int ModBUS_F03_Assign(struct MBUS *m2, uint8_t address, uint16_t data)
 	}
 	else
 	{
+		address=address*2;
 		m2->_Holding_Registers[(address)+1]=data;
 		c=data>>8;
 		m2->_Holding_Registers[(address)]=c;
@@ -99,6 +100,7 @@ int ModBUS_F04_Assign(struct MBUS *m2, uint8_t address, uint16_t data)
 	}
 	else
 	{
+		address=address*2;
 		m2->_InputRegisters[(address)+1]=data;
 		c=data>>8;
 		m2->_InputRegisters[(address)]=c;
@@ -118,9 +120,10 @@ uint16_t ModBUS_F03_Read(struct MBUS *m2, uint8_t address)
 	}
 	else
 	{
-		n=m2->_Holding_Registers[(address*2)];
+		address=address*2;
+		n=m2->_Holding_Registers[(address)];
 		n=n<<8;
-		n|=m2->_Holding_Registers[(address*2)+1];
+		n|=m2->_Holding_Registers[(address)+1];
 		return(n);
 	}
 }
@@ -136,9 +139,10 @@ uint16_t ModBUS_F04_Read(struct MBUS *m2, uint8_t address)
 	}
 	else
 	{
-		n=m2->_Holding_Registers[(address*2)];
+		address=address*2;
+		n=m2->_Holding_Registers[(address)];
 		n=n<<8;
-		n|=m2->_Holding_Registers[(address*2)+1];
+		n|=m2->_Holding_Registers[(address)+1];
 		return(n);
 	}
 }
